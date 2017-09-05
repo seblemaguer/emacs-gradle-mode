@@ -23,10 +23,10 @@ unit:
 	${CASK} exec ert-runner
 
 ecukes:
-	${CASK} exec ecukes --reporter gangsta
+	${CASK} exec ecukes --reporter progress
 
 ecukes-travis:
-	${CASK} exec ecukes --reporter gangsta --no-win
+	${CASK} exec ecukes --reporter progress --no-win
 
 docs:
 	${CASK} exec ${EMACS} -Q --script bin/docs.el

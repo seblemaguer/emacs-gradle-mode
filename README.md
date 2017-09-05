@@ -1,7 +1,6 @@
 emacs-gradle-mode
 =================
-[![Build Status](https://travis-ci.org/jacobono/emacs-gradle-mode.svg?branch=master)]
-(https://travis-ci.org/jacobono/emacs-gradle-mode)
+[![Build Status](https://travis-ci.org/seblemaguer/emacs-gradle-mode.svg?branch=master)](https://travis-ci.org/seblemaguer/emacs-gradle-mode)
 
 Minor mode for emacs to run gradle from emacs and not have to go to a terminal!
 
