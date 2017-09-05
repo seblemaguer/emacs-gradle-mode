@@ -10,4 +10,5 @@
  (depends-on "ecukes")
  (depends-on "espuds")
  (depends-on "ert-runner")
- (depends-on "el-mock"))
+ (depends-on "el-mock")
+ (depends-on "ivy"))

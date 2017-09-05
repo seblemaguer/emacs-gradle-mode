@@ -5,7 +5,7 @@
 
 ;; Author: Sébastien Le Maguer <slemaguer@coli.uni-saarland.de>
 
-;; Package-Requires: ((emacs "25.2"))
+;; Package-Requires: ((emacs "25.2") (ivy))
 ;; Keywords:
 ;; Homepage:
 
@@ -29,6 +29,31 @@
 
 (require 'cl-lib)
 
+
+;;; --------------------------
+;; gradle-mode variables
+;;; --------------------------
+
+(defcustom gradle-continuous-option "--continuous"
+  "String representation of the continuous option"
+  :group 'gradle
+  :type 'string)
+
+(defcustom gradle-quiet-option "-q"
+  "String representation of the quiet option"
+  :group 'gradle
+  :type 'string)
+
+
+(defcustom gradle-quiet-activation nil
+  "Silent main part except error and warnings provided by gradle"
+  :group 'gradle
+  :type 'boolean)
+
+(defcustom gradle-continuous-activation nil
+  "Continuous building"
+  :group 'gradle
+  :type 'boolean)
 
 ;; error processing if no executable??
 (defcustom gradle-executable-path (executable-find "gradle")
@@ -98,14 +123,15 @@ If there is a folder you care to run from higher than this level, you need to mo
   (let ((gradle-executable (if gradle-use-gradlew
                                gradle-gradlew-executable
                              gradle-executable-path))
-        (gradle-cmd '(gradle-executable)))
+        (gradle-cmd '()))
     (progn
+      (push gradle-executable gradle-cmd)
       (when gradle-quiet-activation
-        (add-to-list 'gradle-cmd gradle-quiet-option))
+        (push gradle-quiet-option gradle-cmd))
       (when gradle-continuous-activation
-        (add-to-list 'gradle-cmd gradle-continuous-option))
-      (add-to-list 'gradle-cmd gradle-tasks)
-      (s-join " " gradle-cmd))))
+        (push gradle-continuous-option gradle-cmd))
+      (push gradle-tasks gradle-cmd)
+     (s-join " " (nreverse gradle-cmd)))))
 
 
 (provide 'gradle-core)

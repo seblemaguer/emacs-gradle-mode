@@ -29,8 +29,7 @@
 
 (require 'cl-lib)
 (require 'gradle-core)
-
-;;(require 'ivy)
+(require 'ivy)
 
 (defcustom gradle-cache-dir "~/.gradle/completion/"
   "cache dir for the completion"

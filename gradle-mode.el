@@ -40,30 +40,6 @@
 (require 'gradle-completion)
 (require 'gradle-core)
 
-;;; --------------------------
-;; gradle-mode variables
-;;; --------------------------
-
-(defcustom gradle-continuous-option "--continuous"
-  "String representation of the continuous option"
-  :group 'gradle
-  :type 'string)
-
-(defcustom gradle-quiet-option "-q"
-  "String representation of the quiet option"
-  :group 'gradle
-  :type 'string)
-
-
-(defcustom gradle-quiet-activation nil
-  "Silent main part except error and warnings provided by gradle"
-  :group 'gradle
-  :type 'boolean)
-
-(defcustom gradle-continuous-activation nil
-  "Continuous building"
-  :group 'gradle
-  :type 'boolean)
 
 ;;; --------------------------
 ;; gradle-mode interactive functions
