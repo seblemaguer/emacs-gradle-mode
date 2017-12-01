@@ -32,12 +32,13 @@
 (require 'ivy)
 
 (defcustom gradle-cache-dir "~/.gradle/completion/"
-  "cache dir for the completion"
+  "Cache dir for the completion."
   :group 'gradle
   :type 'string)
 
-
-(defvar gradle-ivy-hash-tasks nil)
+(defvar gradle-ivy-hash-tasks nil
+  "Tasks hash. Filled by gradle-list-tasks."
+  :group gradle)
 
 (defun gradle-ivy-transformer (cmd)
   "Return CMD appended with the corresponding binding in the current window."
@@ -53,15 +54,56 @@
   "Initialize the cache dir by creating it"
   (mkdir gradle-cache-dir t))
 
+(defun gradle-get-project-root-dir ()
+  "Get the root project directory for the current build."
+  (let ((current-dir (expand-file-name ".")) (root-dir nil))
+    (while (and (not root-dir) (not (string= "/" current-dir)))
+      ;; Remove the trailing "/" if some is detected
+      (setq current-dir (replace-regexp-in-string "/$" "" current-dir))
+      (when (or (file-exists-p (format "%s/gradlew" current-dir))
+		(file-exists-p (format "%s/settings.gradle" current-dir)))
+	(setq root-dir current-dir))
+      (setq current-dir (file-name-directory current-dir)))
+    root-dir))
+
+
+(defun gradle-get-build-file ()
+  "Get the project main build file."
+  (interactive)
+  (let ((root-dir (gradle-get-project-root-dir)))
+    (if root-dir
+	(format "%s/build.gradle" root-dir)
+      (error "not in a gradle project!"))))
+
+(defun gradle-get-cache-name ()
+  "Get the name of the gradle cache."
+  (replace-regexp-in-string "[^[:alnum:]]" "_" (gradle-get-build-file)))
+
+(defun gradle-get-files-checksum ()
+  "Get checksum for the project. It needs md5sum and awk for now."
+  (interactive)
+  (let ((cache-name (concat gradle-cache-dir (gradle-get-cache-name))) cmd)
+    (setq cmd (format "cat %s" cache-name))
+    (setq cmd (format "%s | xargs ls -o 2>/dev/null | md5sum | awk '{print $1}'" cmd))
+  (replace-regexp-in-string "\n" "" (shell-command-to-string cmd))))
+
+(defun gradle-generate-tasks-cache ()
+  "Generate the task cache for gradle completion."
+  (interactive)
+  (let ((cmd (format "%s/gradlew" (gradle-get-project-root-dir)))
+	gradle-tasks-output)
+    (setq gradle-tasks-output
+	  (shell-command-to-string
+	   (format "%s --build-file %s -q tasks --all" cmd (gradle-get-build-file))))
+    (message gradle-tasks-output)
+    ))
 
 (defun gradle-list-tasks ()
   "List the available tasks for the current project"
   (let ((default-directory  (gradle-run-from-dir (if gradle-use-gradlew
 						     'gradle-is-gradlew-dir
 						   'gradle-is-project-dir)))
-	(root-file (concat gradle-cache-dir
-			   (replace-regexp-in-string "[^[:alnum:]]" "_" (expand-file-name (concat default-directory "/build.gradle")))
-			   ".md5"))
+	(root-file (concat gradle-cache-dir (gradle-get-cache-name) ".md5"))
 	md5-filename list-tasks)
     (if (file-exists-p root-file)
 	(progn
