@@ -37,8 +37,7 @@
   :type 'string)
 
 (defvar gradle-ivy-hash-tasks nil
-  "Tasks hash. Filled by gradle-list-tasks."
-  :group gradle)
+  "Tasks hash. Filled by gradle-list-tasks.")
 
 (defun gradle-ivy-transformer (cmd)
   "Return CMD appended with the corresponding binding in the current window."
@@ -125,8 +124,7 @@
 				    (puthash (car cur-task) (cdr cur-task) gradle-ivy-hash-tasks)))
 		gradle-ivy-hash-tasks)
 	    (error (format-message "%s doesn't exist, something went wrong" md5-filename))))
-      (display-warning 'gradle-mode (format-message "%s doesn't exist, run init in your shell" root-file))))
-  )
+      (display-warning 'gradle-mode (format-message "%s doesn't exist, run init in your shell" root-file)))))
 
 
 (provide 'gradle-completion)
