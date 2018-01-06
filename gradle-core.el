@@ -28,7 +28,7 @@
 ;;; Code:
 
 (require 'cl-lib)
-
+(require 'gradle-compilation)
 
 ;;; --------------------------
 ;; gradle-mode variables
@@ -112,11 +112,13 @@ If there is a folder you care to run from higher than this level, you need to mo
 (defun gradle-run (gradle-tasks)
   "Run gradle command with `GRADLE-TASKS' and options supplied."
   (gradle-kill-compilation-buffer)
-  (let ((default-directory
-          (gradle-run-from-dir (if gradle-use-gradlew
-                                   'gradle-is-gradlew-dir
-                                 'gradle-is-project-dir))))
-    (compile (gradle-make-command gradle-tasks))))
+  (let* ((default-directory (gradle-run-from-dir
+			    (if gradle-use-gradlew
+				'gradle-is-gradlew-dir
+			      'gradle-is-project-dir))))
+    (gradle-compile (gradle-make-command gradle-tasks) "*gradle compilation*")))
+
+
 
 (defun gradle-make-command (gradle-tasks)
   "Make the gradle command, using some executable path and GRADLE-TASKS."
