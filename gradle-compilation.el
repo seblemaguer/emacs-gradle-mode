@@ -31,6 +31,9 @@
 (require 'compile)
 
 
+;; ==================================================================
+;; # Variables
+;; ==================================================================
 (defvar gradle-buffer--save-buffers-predicate
   (lambda ()
     (not (string= (substring (buffer-name) 0 1) "*"))))
@@ -43,13 +46,10 @@
   '(gradle "\\([-A-Za-z0-9./_]+\\):\\([0-9]+\\)\\(: warning\\)?" 1 2 nil (3) 1)
   "File link matcher for `compilation-error-regexp-alist-alist' (matches path/to/file:line).")
 
-(defun gradle-buffer--kill-any-orphan-proc ()
-  "Ensure any dangling buffer process is killed."
-  (let ((orphan-proc (get-buffer-process (buffer-name))))
-    (when orphan-proc
-      (kill-process orphan-proc))))
 
-
+;; ==================================================================
+;; # Hooks
+;; ==================================================================
 (defun gradle-buffer--handle-compilation ()
   (ansi-color-apply-on-region (point-min) (point-max)))
 
@@ -58,23 +58,19 @@
   (delete-matching-lines "\\(-*- mode:\\|^$\\|gradle run\\|Loading config\\|--no-single-run\\|Gradle finished\\|Gradle started\\|gradle-compilation;\\)"
                          (point-min) (point)))
 
-(define-compilation-mode gradle-compilation-mode "Gradle compilation"
-  "Gradle dedicated compilation mode."
-  (progn
-    (font-lock-add-keywords nil
-                            '(
-			      ("^:.*:" . font-lock-constant-face)
-			      (":[^:]* " . font-lock-comment-face) ;; Task
-			      ("\(UP-TO-DATE\|NO-SOURCE\)" . font-lock-doc-face)
-			      ("ERROR.*")
-			      ))
-    ;; Set any bound buffer name buffer-locally
-    (setq gradle-buffer--buffer-name gradle-buffer--buffer-name)
-    (set (make-local-variable 'kill-buffer-hook)
-         'gradle-buffer--kill-any-orphan-proc)))
+;; ==================================================================
+;; # Helper function function
+;; ==================================================================
+(defun gradle-buffer--kill-any-orphan-proc ()
+  "Ensure any dangling buffer process is killed."
+  (let ((orphan-proc (get-buffer-process (buffer-name))))
+    (when orphan-proc
+      (kill-process orphan-proc))))
 
 
-
+;; ==================================================================
+;; # Compile function
+;; ==================================================================
 (defun gradle-compile (cmd buffer-name)
   "Run CMD in `buffer-name'.
 Returns the compilation buffer.
@@ -89,6 +85,24 @@ Argument BUFFER-NAME for the compilation."
       (setq-local compilation-error-regexp-alist (cons 'gradle compilation-error-regexp-alist))
       (add-hook 'compilation-filter-hook 'gradle-buffer--handle-compilation nil t)
       (add-hook 'compilation-filter-hook 'gradle-buffer--handle-compilation-once nil t))))
+
+
+;; ==================================================================
+;; # Compilation mode
+;; ==================================================================
+(define-compilation-mode gradle-compilation-mode "Gradle compilation"
+  "Gradle dedicated compilation mode."
+  (progn
+    (font-lock-add-keywords nil
+                            '(("^:.*:" . font-lock-comment-face) ;; Project
+			      ("\\(UP-TO-DATE\\|NO-SOURCE\\)" . font-lock-doc-face)
+			      ))
+    ;; Set any bound buffer name buffer-locally
+    (setq gradle-buffer--buffer-name gradle-buffer--buffer-name)
+    (set (make-local-variable 'kill-buffer-hook)
+         'gradle-buffer--kill-any-orphan-proc)))
+
+
 
 
 (provide 'gradle-compilation)
