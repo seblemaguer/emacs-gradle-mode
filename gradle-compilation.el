@@ -32,6 +32,22 @@
 
 
 ;; ==================================================================
+;; # Faces
+;; ==================================================================
+(defface gradle-compilation-success-face
+  '((t :foreground "green"
+       :weight bold))
+  "Face for success."
+  :group 'gradle-faces)
+
+(defface gradle-compilation-error-face
+  '((t :foreground "red"
+       :weight bold))
+  "Face for failure."
+  :group 'gradle-faces)
+
+
+;; ==================================================================
 ;; # Variables
 ;; ==================================================================
 (defvar gradle-buffer--save-buffers-predicate
@@ -94,8 +110,8 @@ Argument BUFFER-NAME for the compilation."
   "Gradle dedicated compilation mode."
   (progn
     (font-lock-add-keywords nil
-                            '(("^:.*:" . font-lock-comment-face) ;; Project
-			      ("\\(UP-TO-DATE\\|NO-SOURCE\\)" . font-lock-doc-face)
+                            '(("^:.*:" . 'font-lock-comment-face) ;; Project
+			      ("\\(UP-TO-DATE\\|NO-SOURCE\\)" . 'gradle-compilation-success-face)
 			      ))
     ;; Set any bound buffer name buffer-locally
     (setq gradle-buffer--buffer-name gradle-buffer--buffer-name)
