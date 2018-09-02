@@ -5,7 +5,7 @@
 
 ;; Author: Sébastien Le Maguer <slemaguer@coli.uni-saarland.de>
 
-;; Package-Requires: ((emacs "25.2"))
+;; Package-Requires: ((emacs "25.2") (ivy "0.9.0"))
 ;; Keywords:
 ;; Homepage:
 
@@ -37,8 +37,9 @@
   :type 'string)
 
 (defvar gradle-ivy-hash-tasks nil
-  "Tasks hash. Filled by gradle-list-tasks.")
-
+  "Cache of tasks"
+  :group 'gradle
+  :type 'hash)
 (defun gradle-ivy-transformer (cmd)
   "Return CMD appended with the corresponding binding in the current window."
   (let ((desc (gethash cmd gradle-ivy-hash-tasks)))
@@ -104,15 +105,23 @@
 						   'gradle-is-project-dir)))
 	(root-file (concat gradle-cache-dir (gradle-get-cache-name) ".md5"))
 	md5-filename list-tasks)
+
+    ;; Create hash
+    (setq gradle-ivy-hash-tasks (make-hash-table))
+
+    ;; Fill hash
     (if (file-exists-p root-file)
 	(progn
+          ;; get hash filename
 	  (setq md5-filename (concat gradle-cache-dir
 				     (with-temp-buffer
 				       (insert-file-contents root-file)
 				       (replace-regexp-in-string "\n$" "" (buffer-string)))))
+
+          ;; Fill hash
+
 	  (if (file-exists-p md5-filename)
 	      (progn
-		(setq gradle-ivy-hash-tasks (make-hash-table))
 		(setq list-tasks (with-temp-buffer
 				   (insert-file-contents md5-filename)
 				   (split-string (buffer-string) "\n" t)))
@@ -121,11 +130,34 @@
 						   (replace-regexp-in-string "[\\][:]" ":"
 									     (replace-regexp-in-string "\\([^:]\\):\\([^:]*\\)$" "\\1\t\\2" task))
 						   "\t" t)))
-				    (puthash (car cur-task) (cdr cur-task) gradle-ivy-hash-tasks)))
-		gradle-ivy-hash-tasks)
-	    (error (format-message "%s doesn't exist, something went wrong" md5-filename))))
-      (display-warning 'gradle-mode (format-message "%s doesn't exist, run init in your shell" root-file)))))
+				    (puthash (car cur-task) (cdr cur-task) gradle-ivy-hash-tasks))))
+            (display-warning 'gradle-mode (format-message "hash empty: %s doesn't exist, something went wrong" md5-filename)))
+	  )
 
+      (display-warning 'gradle-mode (format-message "%s doesn't exist, run init in your shell" root-file))
+
+
+      ;; Return hash
+      gradle-ivy-hash-tasks
+      )))
+
+
+(defun gradle-ivy-execute ()
+  "Execute gradle command with TASKS supplied by user input."
+  (interactive)
+  (let ((prompt "Select a task to execute: ")
+	task)
+    (when (fboundp 'ivy-read)
+      (progn
+	(setq task
+	      (ivy-read
+	       prompt
+	       (gradle-list-tasks)
+               :require-match nil
+	       :history 'gradle-tasks-history
+	       ;; :initial-input initial-input
+	       :caller 'gradle-execute)))
+      (gradle-run task))))
 
 (provide 'gradle-completion)
 ;;; gradle-completion.el ends here
