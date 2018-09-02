@@ -37,30 +37,12 @@
 
 (require 's)
 (require 'compile)
-(require 'gradle-completion)
 (require 'gradle-core)
 
 
 ;;; --------------------------
 ;; gradle-mode interactive functions
 ;;; --------------------------
-
-(defun gradle-execute ()
-  "Execute gradle command with TASKS supplied by user input."
-  (interactive)
-  (let ((prompt "Select a task to execute: ")
-	(choices (gradle-list-tasks))
-	task)
-    (when (fboundp 'ivy-read)
-      (progn
-	(setq task
-	      (ivy-read
-	       prompt choices
-	       :history 'gradle-tasks-history
-	       ;; :initial-input initial-input
-	       :caller 'gradle-execute)))
-      (gradle-run task))))
-
 
 (defun gradle-build ()
   "Execute gradle build command."
@@ -120,7 +102,7 @@
     (define-key map (kbd "C-c C-g C-d t") 'gradle-test--daemon)
     (define-key map (kbd "C-c C-g C-d s") 'gradle-single-test--daemon)
     (define-key map (kbd "C-c C-g d") 'gradle-execute--daemon)
-    (define-key map (kbd "C-c C-g r") 'gradle-execute)
+    (define-key map (kbd "C-c C-g r") 'gradle-run)
     map)
   "Keymap for the gradle minor mode.")
 
