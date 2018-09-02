@@ -109,19 +109,20 @@ If there is a folder you care to run from higher than this level, you need to mo
 	  (delete-windows-on (get-buffer "*compilation*"))
 	  (kill-buffer "*compilation*")))))
 
-(defun gradle-run (gradle-tasks)
-  "Run gradle command with `GRADLE-TASKS' and options supplied."
+(defun gradle-run (gradle-args)
+  "Run gradle command with `GRADLE-ARGS'."
+  (interactive "sGradle arguments: ")
   (gradle-kill-compilation-buffer)
   (let* ((default-directory (gradle-run-from-dir
 			    (if gradle-use-gradlew
 				'gradle-is-gradlew-dir
 			      'gradle-is-project-dir))))
-    (gradle-compile (gradle-make-command gradle-tasks) "*gradle compilation*")))
+    (gradle-compile (gradle-make-command gradle-args) "*gradle compilation*")))
 
 
 
-(defun gradle-make-command (gradle-tasks)
-  "Make the gradle command, using some executable path and GRADLE-TASKS."
+(defun gradle-make-command (gradle-args)
+  "Make the gradle command, using some executable path, `GRADLE-ARGS' and some predefined intern options."
   (let ((gradle-executable (if gradle-use-gradlew
                                gradle-gradlew-executable
                              gradle-executable-path))
@@ -132,7 +133,7 @@ If there is a folder you care to run from higher than this level, you need to mo
         (push gradle-quiet-option gradle-cmd))
       (when gradle-continuous-activation
         (push gradle-continuous-option gradle-cmd))
-      (push gradle-tasks gradle-cmd)
+      (push gradle-args gradle-cmd)
      (s-join " " (nreverse gradle-cmd)))))
 
 
