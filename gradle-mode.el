@@ -103,7 +103,7 @@
     (define-key map (kbd "C-c C-g C-d t") 'gradle-test--daemon)
     (define-key map (kbd "C-c C-g C-d s") 'gradle-single-test--daemon)
     (define-key map (kbd "C-c C-g d") 'gradle-execute--daemon)
-    (define-key map (kbd "C-c C-g r") 'gradle-ivy-build)
+    (define-key map (kbd "C-c C-g r") 'gradle-ivy-execute)
     map)
   "Keymap for the gradle minor mode.")
 

@@ -37,9 +37,8 @@
   :type 'string)
 
 (defvar gradle-ivy-hash-tasks nil
-  "Cache of tasks"
-  :group 'gradle
-  :type 'hash)
+  "Cache of tasks")
+
 (defun gradle-ivy-transformer (cmd)
   "Return CMD appended with the corresponding binding in the current window."
   (let ((desc (gethash cmd gradle-ivy-hash-tasks)))
