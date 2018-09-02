@@ -44,15 +44,15 @@
     (should
      (equal
       (gradle-make-command "test -Dtest-single=MyTest --daemon")
-      "gradlew test -Dtest-single=MyTest --daemon"))
+      "./gradlew test -Dtest-single=MyTest --daemon"))
     (should
      (equal
       (gradle-make-command "build --daemon")
-      "gradlew build --daemon"))
+      "./gradlew build --daemon"))
     (should
      (equal
       (gradle-make-command "test")
-      "gradlew test"))))
+      "./gradlew test"))))
 
 ;; find the correct gradle project directory to run commands in
 
@@ -113,7 +113,7 @@
 	(gradle-run-from-dir 'gradle-is-gradlew-dir)
 	(f-slash
 	 (f-short gradle-mode-test/sandbox-path))))))
-  
+
   ;; delete all sandbox directory
   (f-delete gradle-mode-test/sandbox-path t))
 
@@ -129,4 +129,3 @@
     nil)))
 
 ;;; gradle-mode-test.el ends here
-
