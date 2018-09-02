@@ -95,7 +95,15 @@ Argument BUFFER-NAME for the compilation."
   (let* ((gradle-buffer--buffer-name buffer-name)
          (compilation-filter-start (point-min)))
     (with-current-buffer
-        (compilation-start cmd 'gradle-compilation-mode (lambda (b) gradle-buffer--buffer-name))
+        (progn
+          ;; Define some local info
+          (setq compile-command cmd)
+          (setq-local compilation-directory default-directory)
+
+          ;; Compile
+          (compilation-start cmd 'gradle-compilation-mode (lambda (b) gradle-buffer--buffer-name)))
+
+      ;; Adapt some hook to color everything
       (setq-local compilation-error-regexp-alist-alist
                   (cons gradle-buffer--error-link-options compilation-error-regexp-alist-alist))
       (setq-local compilation-error-regexp-alist (cons 'gradle compilation-error-regexp-alist))
